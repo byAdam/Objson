@@ -2,3 +2,5 @@
 *.obj
 output.json
 output.png
+input.mtl
+output.mtl

@@ -37,16 +37,16 @@ class Objson:
                 face_vertices = [vertices[x] for x in face_vertice_indexes]
 
                 faces.append(face_vertices)
-            
-            cuboids.append(Cuboid(faces))
+
+            cuboids.append(Cuboid(faces, o))
                 
-        return []
+        return cuboids
 
     def extract_vertices(self, obj=None):
         if obj is None:
             obj = self.obj
         
-        return [x.strip().split()[1:] for x in obj if x.split()[0] == "v"]
+        return [list(map(float, x.strip().split()[1:])) for x in obj if x.split()[0] == "v"]
 
     def extract_objects(self, obj=None):
         if obj is None:
@@ -71,13 +71,16 @@ class Objson:
     
     def convert(self, json_path, texture_path):
         # Initialize JSON and
-        self.json = {}
+        with open("templates/geo.json") as f:
+            self.json = json.load(f)
         self.texture = Image.new('RGB', (16, 16), color = 'red')
+        
+        self.json["minecraft:geometry"][0]["bones"][0]["cubes"] = [c.return_json() for c in self.cuboids]
 
         ## Save Files
         self.__save(json_path, texture_path)
     
     def __save(self, json_path, texture_path):
         with open(json_path, "w+") as f:
-            json.dump(self.json, f)
+            json.dump(self.json, f, indent=4)
         self.texture.save(texture_path)
